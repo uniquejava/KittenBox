@@ -1,0 +1,7 @@
+/.settings
+/logs
+/bin
+*.exe
+*.jar
+*.log
+*.html

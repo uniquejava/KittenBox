@@ -1,0 +1,24 @@
+通过千千静听歌词服务器下载歌词（c#）2009-07-15 08:53某位博友询问做音乐播放器歌词相关的问题。要显示歌词当然得有歌词，于是昨天晚上花了点时间做了下，
+算法信息来源于网上的一段PHP代码，具体出处不得而知。
+整个下载歌词的流程为:
+1、根据歌手以及歌曲名称找歌词单列表
+服务器地址为：
+http://ttlrcct2.qianqian.com/dll/lyricsvr.dll?sh?Artist={0}&Title={1}&Flags=0
+{0}为歌手名的UNICODE编码字符串
+{1}为歌曲名的UNICODE编码字符串
+注意
+歌手名，歌曲名需要去空格、"'"、转换成小写等操作。
+UNICODE编码时需要按字节转换为16进制，而不是按字符。
+2、上面的操作获取到类似下面的xml结果。
+<?xml version="1.0" encoding="UTF-8"?>
+<result>
+　　<lrc id="70437" artist="胡彦斌" title="男人 KTV"></lrc>
+　　<lrc id="204568" artist="胡彦斌" title="男人KTV"></lrc>
+</result>
+3、我们选择其中一个歌词进行下载。
+根据选择歌词的ID，artist，title生成一个校验字符串（CODE），具体算法看源码。
+根据ID以及CODE去下面的地址获取歌词。
+http://ttlrcct2.qianqian.com/dll/lyricsvr.dll?dl?Id={0}&Code={1}
+{0}：ID
+{1}：CODE
+演示源码： http://files.cnblogs.com/5yplan/download_QianQianLrc_update.rar  

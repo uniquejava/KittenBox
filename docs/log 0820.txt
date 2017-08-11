@@ -1,0 +1,121 @@
+21:43 2009-8-20
+现在拖动一个或多个文件到播放列表时会出现插入位置指示线
+
+现在可以在播放列表内自由移动item
+
+现在正在播放的item前会出现三角形标记
+
+烦恼：
+TableViewer在DND时FEEDBACK_INSERT_BEFORE/AFTER无效，改用TreeViewer
+
+该死的TreeViewer会自动帮你排序。
+去掉treeViewer.setSorter(new MyViewerSorter());一句即可。
+但是
+去掉后点表头就不能排序了。
+最后，我在ViewSorter里加了一个enable变量，默认是false, compare的时候如果enble=false就直接返回0，这样就排不成了。
+只在点表头的时候才让enable=true,处理完又立马将其置为false.
+
+Search Playlist
+搜索框试了addKeyListener和addVerifyListener均出现令人恼火的现象
+最后用了ModifyListener
+
+列表内的选中多个item移动算法！计算移动后的新位置！难啊，搞得俺不得不拿出纸和笔在本上慢慢推导：
+测试用例：
+比如有0,1,2,3,4,5,6,7,现在选中1,2,5,7要移动3后面，变成
+0,3,1,2,5,4,6
+
+再比如0,1,2,3,4,5,6,7,现在选中0,2,3,6,7移动到2后面，变成
+1,0,2,3,6,7,4,5
+
+推导出如下公式(所有变量从0开始)
+假设目标位置为pos(用例1中的pos=4)
+拖动前选中item的下标保存在dragItem数组中(用例1中dragItem=[1,2,5,7])
+upcount表示相对于pos向前移动了的item的个数,就是位置>=pos的(用例1中upcount=2,分别是5,7)
+i表示dragItem的下标(用例1中有4个要移动的item,i=0,1,2,3)
+i2表示向前移动了的item的下标[第一个向前移动的i2=0]
+
+先计算upcount
+遍历dragItem, 只要是dragItem[i]>pos就upcount++;
+
+然后就开始做移动操作了
+
+第一步：先复制所有的要移动的item到pos,新位置的下标为
+pos+i
+
+第二步：删除移动过的item
+
+for(i=0, i<dragItem.length;i++){
+  if(dragItem[i]<pos){//在pos前的
+      删除dragItem[i]-i
+   } else if(dragItem[i]>=pos){//在pos后的
+      删除dragItem[i] + upcount-(i2++)
+   }
+}
+
+这样，理论上播放列表内的拖放功能就实现了
+
+
+======================  分割线 ======================
+
+今天研究了一天的DND！，靠还真是复杂。做做笔记
+
+拖文件进来
+===================dragEnter
+===================dragOver
+isDragFromTree=false
+isDropToSelf=false
+===================dragOver
+isDragFromTree=false
+isDropToSelf=false
+===================dragLeave
+================dropAccept
+isDropToSelf=false
+===================drop
+isDropToSelf=false
+
+自己拖自己
+===================dragStart
+draggedItemIndex=1
+===================dragEnter
+===================dragOver
+isDragFromTree=true
+isDropToSelf=true
+===================dragOver
+isDragFromTree=true
+isDropToSelf=true
+===================dragLeave
+================dropAccept
+isDropToSelf=false
+===================dragSetData
+dragSetData
+===================drop
+isDropToSelf=false
+===================dragFinished
+moved
+2
+
+拖走
+===================dragStart
+draggedItemIndex=0
+===================dragEnter
+===================dragOver
+isDragFromTree=true
+isDropToSelf=true
+===================dragOver
+isDragFromTree=true
+isDropToSelf=true
+===================dragLeave
+===================dragSetData
+dragSetData
+===================dragSetData
+dragSetData
+===================dragSetData
+dragSetData
+
+===================dragFinished
+TARGET_moved
+8
+
+
+
+

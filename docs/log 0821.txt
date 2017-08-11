@@ -1,0 +1,27 @@
+11:48 2009-8-21
+
+TreeSelection selection = (TreeSelection) treeViewer.getSelection();
+if (!selection.isEmpty()) {   
+    for (Iterator iterator = selection.iterator(); iterator.hasNext();) {   
+
+
+
+移动到目标位置上后，移动的item继续保存选中状态，并且，移动前后的滚动条位置不应改变
+
+16:02 2009-8-21
+我错了。昨天一天的辛苦白费了
+重头再来
+原来所有的StructuredViewer自带DND的支持。
+
+dragStart
+validateDrop
+validateDrop
+validateDrop
+validateDrop
+validateDrop
+validateDrop
+validateDrop
+validateDrop
+dragSetData
+performDrop
+dragFinished
